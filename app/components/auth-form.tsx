@@ -23,16 +23,26 @@ export default function AuthForm() {
 
     try {
       if (isLogin) {
+        console.log('Attempting login...');
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password
         })
 
         if (error) {
+          console.log('Login error:', error);
           alert('Login failed: ' + error.message)
         } else {
-          alert('Login successful! Redirecting...')
-          router.push('/dashboard')
+          console.log('Login successful, getting session...');
+          const { data } = await supabase.auth.getSession()
+          console.log('Session data:', data);
+          if (data.session) {
+            console.log('Session exists, redirecting...');
+            router.push('/dashboard')
+          } else {
+            console.log('No session found after login');
+            alert('Session creation failed. Please try again.')
+          }
         }
       } else {
         const { error } = await supabase.auth.signUp({ 
